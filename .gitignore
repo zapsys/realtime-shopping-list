@@ -27,3 +27,4 @@ src/firebaseConfig.ts
 *.sln
 *.sw?
 .giitignore
+.firebase/hosting.ZGlzdA.cache
