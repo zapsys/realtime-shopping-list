@@ -17,6 +17,8 @@ src/firebaseConfig.ts
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+.github/*
+.firebase/*
 .idea
 .DS_Store
 *.suo
@@ -24,3 +26,4 @@ src/firebaseConfig.ts
 *.njsproj
 *.sln
 *.sw?
+.giitignore
