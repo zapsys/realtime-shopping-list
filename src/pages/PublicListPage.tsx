@@ -1,7 +1,7 @@
 // src/pages/PublicListPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore'; // getDoc pode ser removido se onSnapshot for usado
+import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import type { ShoppingList, ShoppingListItem } from '../types';
 import { formatDate } from '../utils/formatDate';
@@ -52,6 +52,16 @@ const PublicListPage: React.FC = () => {
     e.preventDefault();
     if (!listId || newItemName.trim() === '') return;
 
+    // Verifica se o item já existe na lista (ignorando maiúsculas/minúsculas)
+    const isDuplicate = (list?.items || []).some(
+      item => item.name.toLowerCase() === newItemName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      showToast('Este item já está na lista!', 'error');
+      return; // Interrompe a função se o item for duplicado
+    }
+
     const newItem: ShoppingListItem = {
       id: uuidv4(),
       name: newItemName.trim(),
@@ -93,7 +103,13 @@ const PublicListPage: React.FC = () => {
         <form onSubmit={handleAddItem} className="flex flex-col sm:flex-row gap-2 mb-6 border-b pb-6">
             <input type="text" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Novo item" className="flex-grow p-2 border rounded-md"/>
             <input type="text" inputMode="numeric" value={newItemQuantity} onChange={(e) => setNewItemQuantity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="Qtde" className="w-full sm:w-20 p-2 border rounded-md"/>
-            <input type="text" inputMode="decimal" value={newItemPrice} onChange={(e) => setNewItemPrice(e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'))} placeholder="R$ 0,00" className="w-full sm:w-28 p-2 border rounded-md"/>
+            <input
+                type="number"
+                value={newItemPrice}
+                onChange={(e) => setNewItemPrice(e.target.value,)}
+                placeholder="R$ 0,00"
+                step="0.01"
+                min="0" className="w-full sm:w-28 p-2 border rounded-md"/>
             <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Adicionar</button>
         </form>
 
