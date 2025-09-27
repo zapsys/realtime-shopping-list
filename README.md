@@ -8,7 +8,7 @@
 Um aplicativo web completo de lista de compras construído com React, TypeScript e Firebase. O projeto oferece sincronização em tempo real, suporte completo offline e autenticação de usuários, sendo totalmente responsivo e instalável como um PWA.
 
 ---
-## ✨ Funcionalidades
+## &equiv; Funcionalidades
 
 * **Autenticação de Usuários:** Cadastro e login com E-mail/Senha e conta Google.
 * **Gerenciamento de Perfil:** Usuários podem alterar nome de exibição, avatar (foto), e-mail, senha e excluir a própria conta.
@@ -23,7 +23,7 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
 * **Notificações (Toast):** Alertas visuais para ações como adicionar itens, excluir, etc.
 
 ---
-## 🚀 Tecnologias Utilizadas
+## &equiv; Tecnologias Utilizadas
 
 * **Frontend:**
     * [React](https://reactjs.org/)
@@ -55,11 +55,11 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
 ### Instalação Local
 1.  Clone o repositório:
     ```bash
-    git clone [https://github.com/seu-usuario/nome-do-repositorio.git](https://github.com/seu-usuario/nome-do-repositorio.git)
+    git clone https://github.com/zapsys/realtime-shopping-list.git
     ```
 2.  Navegue até o diretório do projeto:
     ```bash
-    cd nome-do-repositorio
+    cd realtime-shopping-list
     ```
 3.  Instale as dependências:
     ```bash
@@ -69,7 +69,7 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
     ```bash
     touch src/firebaseConfig.ts
     ```
-5.  Abra o arquivo `src/firebaseConfig.ts` e cole suas credenciais copiadas do console do Firebase:
+5.  Abra o arquivo `src/firebaseConfig.ts.example` e cole suas credenciais copiadas do console do Firebase:
     ```typescript
     // src/firebaseConfig.ts
     import { initializeApp } from "firebase/app";
@@ -87,6 +87,8 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
     const app = initializeApp(firebaseConfig);
     export const db = getFirestore(app);
     ```
+    Depois salve o arquivo como `src/firebaseConfig.ts`
+
 6.  Execute o servidor de desenvolvimento:
     ```bash
     npm start
@@ -109,7 +111,7 @@ O projeto está configurado para ser implantado facilmente com o Firebase Hostin
     ```
     * Escolha **Hosting**.
     * Selecione seu projeto existente.
-    * Use **`build`** como o diretório público.
+    * Use **`dist`** como o diretório público.
     * Configure como um **single-page app (SPA)**.
 3.  Compile a versão de produção do aplicativo:
     ```bash
