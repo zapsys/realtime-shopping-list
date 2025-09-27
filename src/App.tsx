@@ -16,8 +16,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/public/:listId" element={<PublicListPage />} />
-           <Route
+          <Route path="/list/:listId" element={<PublicListPage />} />
+          <Route
             path="/profile"
             element={
               <PrivateRoute>
