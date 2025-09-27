@@ -37,29 +37,18 @@ const ShoppingListComponent: React.FC<Props> = ({ list, onListUpdate, onListDele
   };
 
   const handleShareToWhatsApp = () => {
-    // 1. Monta o texto da lista
-    let message = `*${list.name}*\n\n`; // Nome da lista em negrito
-    (list.items || [])
-      .sort((a, b) => { // Ordena para garantir que os concluídos fiquem no final
-        if (a.completed === b.completed) return 0;
-        return a.completed ? 1 : -1;
-      })
-      .forEach(item => {
-        const status = item.completed ? '✅' : '⬜';
-        const itemName = item.completed ? `~${item.name}~` : item.name; // Tacha o nome se concluído
-        const price = (item.price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    // 1. Verifica se a lista é pública antes de compartilhar
+    if (!list.isPublic) {
+      showToast('Torne a lista pública antes de compartilhar no WhatsApp!', 'error');
+      return;
+    }
 
-        message += `${status} ${itemName} (${item.quantity}x ${price})\n`;
-      });
+    // 2. Monta a mensagem simples com o nome da lista e o link
+    const publicLink = `${window.location.origin}/list/${list.id}`;
+    const message = `Confira minha lista de compras "${list.name}":\n${publicLink}`;
 
-    // Adiciona o total
-    const total = calculateTotal().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    message += `\n*Total: ${total}*`;
-
-    // 2. Codifica o texto para uma URL
+    // 3. Codifica a mensagem e abre o WhatsApp
     const encodedMessage = encodeURIComponent(message);
-
-    // 3. Cria a URL do WhatsApp e abre em uma nova aba
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -181,8 +170,8 @@ const ShoppingListComponent: React.FC<Props> = ({ list, onListUpdate, onListDele
           <button
             onClick={handleToggleShare}
             className={`px-2 py-1 rounded-md text-xs sm:px-3 sm:text-sm transition-colors font-semibold ${list.isPublic
-                ? 'bg-orange-100 hover:bg-orange-200 text-orange-800'
-                : 'bg-blue-400 hover:bg-blue-500 text-white'
+              ? 'bg-orange-100 hover:bg-orange-200 text-orange-800'
+              : 'bg-blue-400 hover:bg-blue-500 text-white'
               }`}
           >
             {list.isPublic ? 'Tornar Privada' : 'Compartilhar'}
