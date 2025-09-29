@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import PublicListPage from './pages/PublicListPage';
+import AboutPage from './pages/AboutPage';
 import ShoppingApp from './ShoppingApp';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/list/:listId" element={<PublicListPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route
             path="/profile"
             element={
