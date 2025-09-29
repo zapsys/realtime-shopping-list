@@ -92,6 +92,22 @@ const PublicListPage: React.FC = () => {
     }
   };
 
+  const handleToggleComplete = async (itemToUpdate: ShoppingListItem) => {
+    if (!listId || !list) return;
+
+    const newItems = list.items.map(item =>
+      item.id === itemToUpdate.id ? { ...item, completed: !item.completed } : item
+    );
+
+    try {
+      const listRef = doc(db, 'shoppingLists', listId);
+      await updateDoc(listRef, { items: newItems });
+    } catch (err) {
+      showToast('Erro ao atualizar o item.', 'error');
+    }
+  };
+  
+  // --- Início da Função Adicionada ---
   const handleUpdateItem = async (updatedItem: ShoppingListItem) => {
     if (!listId || !list) return;
 
@@ -106,6 +122,7 @@ const PublicListPage: React.FC = () => {
       showToast('Erro ao atualizar o item.', 'error');
     }
   };
+  // --- Fim da Função Adicionada ---
 
   const sortedItems = (list?.items || []).sort((a, b) => {
     if (a.completed === b.completed) return 0;
@@ -133,38 +150,44 @@ const PublicListPage: React.FC = () => {
         <ol className="space-y-3 list-decimal list-inside">
           {sortedItems.map(item => (
             <li key={item.id} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50">
-              
-              {sessionAddedItemIds.includes(item.id) ? (
-                // --- Início da Alteração ---
-                <div className="flex items-center flex-grow gap-2">
-                  <input
-                    type="text"
-                    value={item.name}
-                    onChange={(e) => handleUpdateItem({ ...item, name: e.target.value })}
-                    className="flex-grow p-1 bg-transparent focus:outline-none focus:bg-gray-100 rounded"
-                  />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={item.quantity || ''}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9]/g, '');
-                      handleUpdateItem({ ...item, quantity: parseInt(value, 10) || 0 });
-                    }}
-                    onBlur={() => {
-                      if (!item.quantity || item.quantity < 1) {
-                        handleUpdateItem({ ...item, quantity: 1 });
-                      }
-                    }}
-                    className="w-16 p-1 text-center bg-transparent focus:outline-none focus:bg-gray-100 rounded border"
-                  />
-                </div>
-                // --- Fim da Alteração ---
-              ) : (
-                <span className={`${item.completed ? 'text-gray-500 line-through' : ''}`}>
-                  {item.name} ({item.quantity})
-                </span>
-              )}
+              <div className="flex items-center flex-grow min-w-0 mr-2">
+                <input
+                  type="checkbox"
+                  checked={item.completed}
+                  onChange={() => handleToggleComplete(item)}
+                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ml-2 cursor-pointer"
+                />
+                
+                {sessionAddedItemIds.includes(item.id) ? (
+                  <div className="flex items-center flex-grow gap-2 ml-3">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleUpdateItem({ ...item, name: e.target.value })}
+                      className={`flex-grow p-1 bg-transparent focus:outline-none focus:bg-gray-100 rounded ${item.completed ? 'line-through text-gray-400' : ''}`}
+                    />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={item.quantity || ''}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        handleUpdateItem({ ...item, quantity: parseInt(value, 10) || 0 });
+                      }}
+                      onBlur={() => {
+                        if (!item.quantity || item.quantity < 1) {
+                          handleUpdateItem({ ...item, quantity: 1 });
+                        }
+                      }}
+                      className={`w-16 p-1 text-center bg-transparent focus:outline-none focus:bg-gray-100 rounded border ${item.completed ? 'line-through text-gray-400' : ''}`}
+                    />
+                  </div>
+                ) : (
+                  <span className={`ml-3 ${item.completed ? 'text-gray-500 line-through' : ''}`}>
+                    {item.name} ({item.quantity})
+                  </span>
+                )}
+              </div>
 
               {sessionAddedItemIds.includes(item.id) && (
                 <button onClick={() => handleDeleteItem(item)} className="text-gray-400 hover:text-red-500 text-lg ml-4 flex-shrink-0">
