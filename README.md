@@ -10,8 +10,8 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
 ---
 ## &equiv; Funcionalidades
 
-* **Autenticação de Usuários:** Cadastro e login com E-mail/Senha e conta Google.
-* **Gerenciamento de Perfil:** Usuários podem alterar nome de exibição, avatar (foto), e-mail, senha e excluir a própria conta.
+* **Autenticação de Usuários:** Cadastro e login com e-mail/senha e conta Google.
+* **Gerenciamento de Perfil:** Usuários podem alterar nome de exibição, senha e excluir a própria conta.
 * **Listas Múltiplas:** Crie, edite, arquive e exclua múltiplas listas de compras.
 * **Gerenciamento de Itens:** Adicione, edite (nome, quantidade, preço), marque como concluído e exclua itens de uma lista.
 * **Sincronização em Tempo Real:** Alterações são refletidas instantaneamente em todos os dispositivos conectados, graças ao Firestore.
@@ -49,7 +49,7 @@ Um aplicativo web completo de lista de compras construído com React, TypeScript
 2.  **Authentication:** Habilite os provedores de login **E-mail/Senha** e **Google**.
 3.  **Firestore Database:** Crie um novo banco de dados no modo de produção.
 4.  **Storage:** Ative o Cloud Storage.
-5.  **Regras de Segurança:** Copie o conteúdo dos arquivos `firestore.rules` e `storage.rules` deste projeto e cole nas respectivas abas de "Regras" do seu projeto no console.
+5.  **Regras de Segurança:** Copie o conteúdo dos arquivos `firestore.rules` deste projeto e cole nas respectivas abas de "Regras" do seu projeto no console.
 6.  **Credenciais:** No painel do seu projeto, vá para **Configurações do Projeto** (ícone de engrenagem ⚙️), crie um novo "Aplicativo da Web" e copie o objeto `firebaseConfig`.
 
 ### Instalação Local
