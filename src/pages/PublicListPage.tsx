@@ -1,7 +1,7 @@
 // src/pages/PublicListPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import type { ShoppingList, ShoppingListItem } from '../types';
 import { formatDate } from '../utils/formatDate';
@@ -16,7 +16,7 @@ const PublicListPage: React.FC = () => {
   
   const [newItemName, setNewItemName] = useState('');
   const [newItemQuantity, setNewItemQuantity] = useState('1');
-  const [newItemPrice, setNewItemPrice] = useState('');
+  const [sessionAddedItemIds, setSessionAddedItemIds] = useState<string[]>([]);
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -35,10 +35,6 @@ const PublicListPage: React.FC = () => {
         setError('Lista não encontrada.');
       }
       setLoading(false);
-    }, (err) => {
-      setError('Erro ao buscar a lista.');
-      console.error(err);
-      setLoading(false);
     });
     
     return () => unsubscribe();
@@ -52,21 +48,20 @@ const PublicListPage: React.FC = () => {
     e.preventDefault();
     if (!listId || newItemName.trim() === '') return;
 
-    // Verifica se o item já existe na lista (ignorando maiúsculas/minúsculas)
+    const newItemNameTrimmed = newItemName.trim();
     const isDuplicate = (list?.items || []).some(
-      item => item.name.toLowerCase() === newItemName.toLowerCase()
+      item => item.name.toLowerCase() === newItemNameTrimmed.toLowerCase()
     );
 
     if (isDuplicate) {
       showToast('Este item já está na lista!', 'error');
-      return; // Interrompe a função se o item for duplicado
+      return;
     }
 
     const newItem: ShoppingListItem = {
       id: uuidv4(),
-      name: newItemName.trim(),
+      name: newItemNameTrimmed,
       quantity: parseInt(newItemQuantity, 10) || 1,
-      price: parseFloat(newItemPrice) || 0,
       completed: false,
     };
     
@@ -75,11 +70,40 @@ const PublicListPage: React.FC = () => {
       await updateDoc(listRef, {
         items: arrayUnion(newItem)
       });
+      
+      setSessionAddedItemIds(prevIds => [...prevIds, newItem.id]);
       setNewItemName('');
       setNewItemQuantity('1');
-      setNewItemPrice('');
     } catch (err) {
       showToast('Erro ao adicionar o item.', 'error');
+    }
+  };
+
+  const handleDeleteItem = async (itemToDelete: ShoppingListItem) => {
+    if (!listId) return;
+    try {
+      const listRef = doc(db, 'shoppingLists', listId);
+      await updateDoc(listRef, {
+        items: arrayRemove(itemToDelete)
+      });
+      showToast('Item removido!', 'success');
+    } catch (err) {
+      showToast('Erro ao remover o item.', 'error');
+    }
+  };
+
+  const handleUpdateItem = async (updatedItem: ShoppingListItem) => {
+    if (!listId || !list) return;
+
+    const newItems = list.items.map(item =>
+      item.id === updatedItem.id ? updatedItem : item
+    );
+
+    try {
+      const listRef = doc(db, 'shoppingLists', listId);
+      await updateDoc(listRef, { items: newItems });
+    } catch (err) {
+      showToast('Erro ao atualizar o item.', 'error');
     }
   };
 
@@ -102,24 +126,51 @@ const PublicListPage: React.FC = () => {
         
         <form onSubmit={handleAddItem} className="flex flex-col sm:flex-row gap-2 mb-6 border-b pb-6">
             <input type="text" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Novo item" className="flex-grow p-2 border rounded-md"/>
-            <input type="text" inputMode="numeric" value={newItemQuantity} onChange={(e) => setNewItemQuantity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="Qtde" className="w-full sm:w-20 p-2 border rounded-md"/>
-            <input
-                type="number"
-                value={newItemPrice}
-                onChange={(e) => setNewItemPrice(e.target.value,)}
-                placeholder="R$ 0,00"
-                step="0.01"
-                min="0" className="w-full sm:w-28 p-2 border rounded-md"/>
+            <input type="text" inputMode="numeric" value={newItemQuantity} onChange={(e) => setNewItemQuantity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="Qtde" className="w-full sm:w-24 p-2 border rounded-md"/>
             <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Adicionar</button>
         </form>
 
         <ol className="space-y-3 list-decimal list-inside">
           {sortedItems.map(item => (
-            <li key={item.id} className={`p-2 rounded-md ${item.completed ? 'bg-gray-100 text-gray-500 line-through' : ''}`}>
-              <span>{item.name}</span>
-              <span className="ml-4 font-semibold">
-                ({item.quantity}x { (item.price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
-              </span>
+            <li key={item.id} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50">
+              
+              {sessionAddedItemIds.includes(item.id) ? (
+                // --- Início da Alteração ---
+                <div className="flex items-center flex-grow gap-2">
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => handleUpdateItem({ ...item, name: e.target.value })}
+                    className="flex-grow p-1 bg-transparent focus:outline-none focus:bg-gray-100 rounded"
+                  />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={item.quantity || ''}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, '');
+                      handleUpdateItem({ ...item, quantity: parseInt(value, 10) || 0 });
+                    }}
+                    onBlur={() => {
+                      if (!item.quantity || item.quantity < 1) {
+                        handleUpdateItem({ ...item, quantity: 1 });
+                      }
+                    }}
+                    className="w-16 p-1 text-center bg-transparent focus:outline-none focus:bg-gray-100 rounded border"
+                  />
+                </div>
+                // --- Fim da Alteração ---
+              ) : (
+                <span className={`${item.completed ? 'text-gray-500 line-through' : ''}`}>
+                  {item.name} ({item.quantity})
+                </span>
+              )}
+
+              {sessionAddedItemIds.includes(item.id) && (
+                <button onClick={() => handleDeleteItem(item)} className="text-gray-400 hover:text-red-500 text-lg ml-4 flex-shrink-0">
+                  🗑️
+                </button>
+              )}
             </li>
           ))}
         </ol>
