@@ -35,7 +35,7 @@ const AboutPage: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">🔗 Links Úteis</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="https://github.com/aramzap/realtime-shopping-list" 
+              href="https://github.com/zapsys/realtime-shopping-list" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-center bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded transition-colors"
@@ -43,7 +43,7 @@ const AboutPage: React.FC = () => {
               Repositório no GitHub
             </a>
             <a 
-              href="https://github.com/aramzap/realtime-shopping-list/issues" 
+              href="https://github.com/zapsys/realtime-shopping-list/issues" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition-colors"
