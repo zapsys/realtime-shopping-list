@@ -27,4 +27,6 @@ src/firebaseConfig.ts
 *.sln
 *.sw?
 .giitignore
-.firebase/hosting.ZGlzdA.cache
+android/*
+assets/*
+tsconfig.tsbuildinfo
